@@ -1,6 +1,9 @@
 pipeline {
     agent any
-
+    options {
+        // This is the line that configures the build cleanup
+        buildDiscarder(logRotator(numToKeepStr: '1'))
+    }
     stages {
         stage('Build') {
             steps {
