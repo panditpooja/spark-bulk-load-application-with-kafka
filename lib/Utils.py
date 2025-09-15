@@ -10,7 +10,9 @@ def get_spark_session(env):
             .config('spark.sql.adaptive.enabled','false') \
             .config('spark.driver.extraJavaOptions',
                     '-Dlog4j.configuration=file:log4j.properties') \
-            .master("local[2]") \
+            .config('spark.python.worker.faulthandler.enabled', 'true') \
+            .config('spark.sql.execution.pyspark.udf.faulthandler.enabled', 'true')\
+            .master("local[3]") \
             .enableHiveSupport() \
             .getOrCreate()
     else:
