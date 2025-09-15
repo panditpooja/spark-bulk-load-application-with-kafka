@@ -31,7 +31,7 @@ def read_accounts(spark, env, enable_hive, hive_db):
             .format("csv") \
             .option("header", "true") \
             .schema(get_account_schema()) \
-            .load("test_data/accounts/") \
+            .load("test_data/accounts/account_samples.csv") \
             .where(runtime_filter)
 
 
@@ -40,12 +40,17 @@ def read_parties(spark, env, enable_hive, hive_db):
     if enable_hive:
         return spark.sql("select * from " + hive_db + ".parties").where(runtime_filter)
     else:
-        return spark.read \
+        df = spark.read \
             .format("csv") \
             .option("header", "true") \
             .schema(get_party_schema()) \
-            .load("test_data/parties/") \
+            .option("dateFormat", "M/d/yyyy") \
+            .load("test_data/parties/party_samples.csv") \
             .where(runtime_filter)
+        # Add this line to see if the DataFrame is being created correctly
+        df.printSchema()
+        print(df.show())
+        return df
 
 
 def read_address(spark, env, enable_hive, hive_db):
@@ -57,5 +62,5 @@ def read_address(spark, env, enable_hive, hive_db):
             .format("csv") \
             .option("header", "true") \
             .schema(get_address_schema()) \
-            .load("test_data/party_address/") \
+            .load("test_data/party_address/address_samples.csv") \
             .where(runtime_filter)
