@@ -24,7 +24,7 @@ def get_contract(df):
 
     return df.select("account_id", get_insert_operation(col("account_id"), "contractIdentifier"),
                      get_insert_operation(col("source_sys"), "sourceSystemIdentifier"),
-                     get_insert_operation(col("account_start_date"), "contactStartDateTime"),
+                     get_insert_operation(col("account_start_date").cast("string"), "contactStartDateTime"),
                      get_insert_operation(contract_title_nl, "contractTitle"),
                      get_insert_operation(tax_identifier, "taxIdentifier"),
                      get_insert_operation(col("branch_code"), "contractBranchCode"),
@@ -36,7 +36,7 @@ def get_relations(df):
     return df.select("account_id", "party_id",
                      get_insert_operation(col("party_id"), "partyIdentifier"),
                      get_insert_operation(col("relation_type"), "partyRelationshipType"),
-                     get_insert_operation(col("relation_start_date"), "partyRelationStartDateTime")
+                     get_insert_operation(col("relation_start_date").cast("string"), "partyRelationStartDateTime")
                      )
 
 
@@ -46,7 +46,7 @@ def get_address(df):
                      col("city").alias("addressCity"),
                      col("postal_code").alias("addressPostalCode"),
                      col("country_of_address").alias("addressCountry"),
-                     col("address_start_date").alias("addressStartDate")
+                     col("address_start_date").cast("string").alias("addressStartDate")
                      )
 
     return df.select("party_id", get_insert_operation(address, "partyAddress"))
@@ -66,29 +66,33 @@ def join_party_address(p_df, a_df):
 def join_contract_party(c_df, p_df):
     return c_df.join(p_df, "account_id", "left_outer")
 
-
 def apply_header(spark, df):
-    header_info = [("SBDL-Contract", 1, 0), ]
-    header_df = spark.createDataFrame(header_info) \
-        .toDF("eventType", "majorSchemaVersion", "minorSchemaVersion")
+    event_df = df.withColumn("eventHeader",
+                            struct(
+                                expr("uuid()").alias("eventIdentifier"),
+                                lit("SBDL-Contract").alias("eventType"),
+                                lit(1).alias("majorSchemaVersion"),
+                                lit(0).alias("minorSchemaVersion"),
+                                date_format(current_timestamp(), "yyyy-MM-dd'T'HH:mm:ssZ").alias("eventDateTime")
+                            )) \
+        .withColumn("keys",
+                    array(
+                        struct(
+                            lit("contractIdentifier").alias("keyField"),
+                            col("account_id").alias("keyValue")
+                        )
+                    )) \
+        .withColumn("payload",
+                    struct(
+                        col("contractIdentifier"),
+                        col("sourceSystemIdentifier"),
+                        col("contactStartDateTime"),
+                        col("contractTitle"),
+                        col("taxIdentifier"),
+                        col("contractBranchCode"),
+                        col("contractCountry"),
+                        col("partyRelations")
+                    ))
 
-    event_df = header_df.hint("broadcast").crossJoin(df) \
-        .select(struct(expr("uuid()").alias("eventIdentifier"),
-                       col("eventType"), col("majorSchemaVersion"), col("minorSchemaVersion"),
-                       lit(date_format(current_timestamp(), "yyyy-MM-dd'T'HH:mm:ssZ")).alias("eventDateTime")
-                       ).alias("eventHeader"),
-                array(struct(lit("contractIdentifier").alias("keyField"),
-                             col("account_id").alias("keyValue")
-                             )).alias("keys"),
-                struct(col("contractIdentifier"),
-                       col("sourceSystemIdentifier"),
-                       col("contactStartDateTime"),
-                       col("contractTitle"),
-                       col("taxIdentifier"),
-                       col("contractBranchCode"),
-                       col("contractCountry"),
-                       col("partyRelations")
-                       ).alias("payload")
-                )
-
-    return event_df
+    # Select only the final columns needed for the Kafka message
+    return event_df.select("eventHeader", "keys", "payload")
