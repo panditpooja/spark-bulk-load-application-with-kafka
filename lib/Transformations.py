@@ -66,47 +66,7 @@ def join_party_address(p_df, a_df):
 def join_contract_party(c_df, p_df):
     return c_df.join(p_df, "account_id", "left_outer")
 
-
-from pyspark.sql.functions import col, lit, struct, expr, date_format, current_timestamp
-
-
-# def apply_header(spark, df):
-#     event_df = df.crossJoin(spark.createDataFrame([("SBDL-Contract", 1, 0)]) \
-#                             .toDF("eventType", "majorSchemaVersion", "minorSchemaVersion") \
-#                             .withColumn("eventDateTime", date_format(current_timestamp(), "yyyy-MM-dd'T'HH:mm:ssZ")))
-#
-#     # We create the eventHeader, keys, and payload structs
-#     event_df = event_df.select(
-#         struct(
-#             expr("uuid()").alias("eventIdentifier"),
-#             col("eventType"),
-#             col("majorSchemaVersion"),
-#             col("minorSchemaVersion"),
-#             col("eventDateTime")
-#         ).alias("eventHeader"),
-#         array(
-#             struct(
-#                 lit("contractIdentifier").alias("keyField"),
-#                 col("account_id").alias("keyValue")
-#             )
-#         ).alias("keys"),
-#         struct(
-#             col("contractIdentifier"),
-#             col("sourceSystemIdentifier"),
-#             col("contactStartDateTime"),
-#             col("contractTitle"),
-#             col("taxIdentifier"),
-#             col("contractBranchCode"),
-#             col("contractCountry"),
-#             col("partyRelations")
-#         ).alias("payload")
-#     )
-#
-#     return event_df
-
 def apply_header(spark, df):
-    # Instead of a crossJoin, add the header and payload as new columns.
-    # This is a much more efficient and stable operation.
     event_df = df.withColumn("eventHeader",
                             struct(
                                 expr("uuid()").alias("eventIdentifier"),
