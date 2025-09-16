@@ -19,7 +19,7 @@ The pipeline reads data for each unique account, combines it with its associated
 ### High-Level Architecture
 ![Project Scope](project_scope.jpg)
 * **Source:** Apache Hive tables containing raw entity data.
-* **Processing Engine:** **Apache Spark** processes, merges data from multiple tables and transforms data to the required format.
+* **Processing Engine:** **Apache Spark** processes, merges data from multiple tables and transforms data to the required JSON format.
 * **Destination:** An Apache Kafka cluster for real-time data streaming.
 
 ---
