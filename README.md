@@ -41,6 +41,8 @@ spark-bulk-load-application-with-kafka/
 │── main.py              # Main Spark application
 │── sbdl_submit.sh       # Spark submit script
 │── test_pytest_sbdl.py  # Pytest cases
+│── project_scope.jpg  # Project high level architecture
+│── output.png  # Kafka output screenshot
 ```
 
 ---
@@ -74,6 +76,7 @@ The pipeline consumes data from three main sources (provided as CSV files for lo
 Example: For 10 unique accounts → produce 10 JSON messages → publish to Kafka topic.  
 
 ### Output JSON Structure
+![Output - Kafka](output.png)
 
 Each record sent to Kafka is a JSON message with three main components: `eventHeader`, `keys`, and `payload`.
 
