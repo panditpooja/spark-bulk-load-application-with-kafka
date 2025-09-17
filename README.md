@@ -41,6 +41,8 @@ spark-bulk-load-application-with-kafka/
 │── main.py              # Main Spark application
 │── sbdl_submit.sh       # Spark submit script
 │── test_pytest_sbdl.py  # Pytest cases
+│── project_scope.jpg  # Project high level architecture
+│── output.png  # Kafka output screenshot
 ```
 
 ---
