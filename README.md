@@ -10,13 +10,13 @@ This project demonstrates a scalable data engineering pipeline that reads entity
 
 ---
 
-## Project Overview
+## 📝Project Overview
 
 The primary goal of this project is to process raw entity data stored in Hive and publish it to a Kafka cluster for consumption by downstream applications. The initial implementation focuses on the "Account" entity, which is composed of data from three distinct Hive tables: `accounts`, `parties`, and `addresses`.
 
 The pipeline reads data for each unique account, combines it with its associated parties and their respective addresses, and transforms it into a specific, nested JSON format before producing it to a Kafka topic.
 
-### High-Level Architecture
+## 🧩High-Level Architecture
 ![Project Scope](project_scope.jpg)
 * **Source:** Apache Hive tables containing raw entity data.
 * **Processing Engine:** **Apache Spark** processes, merges data from multiple tables and transforms data to the required JSON format.
@@ -113,7 +113,7 @@ Contains the actual transformed data. Each field within the payload is a struct 
 
 ---
 
-## 🔄 CI/CD Pipeline 
+## ⚙️ CI/CD Pipeline 
 
 1. **Source Control**: GitHub branching strategy (feature → dev → release → master).  
 2. **Jenkins Setup**:  
@@ -160,7 +160,7 @@ Contains the actual transformed data. Each field within the payload is a struct 
 
 ---
 
-## Technology Stack
+##  📚Technology Stack
 
 * **Programming Language:** Python 3.13
 * **Data Processing:** Apache Spark 4.0.0 (PySpark)
